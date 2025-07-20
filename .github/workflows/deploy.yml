@@ -2,15 +2,15 @@ name: Deploy AstroPaper to GitHub Pages
 
 on:
   push:
-    branches: [master] # master kullanıyorsan doğru; değilse main yap.
-  workflow_dispatch:
+    branches: [master] # Eğer ana branch'in 'main' ise burayı main yap.
+  workflow_dispatch: # Manuel tetikleme imkanı
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# GitHub Pages için gerekli
+# Aynı anda iki Pages deploy'unu çakıştırma
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -18,40 +18,23 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # İstersen Node sürümünü açıkça belirt (Astro için 18+ / 20 önerilir)
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      # withastro/action Node'u kurar, bağımlılıkları yükler, build eder ve dist'i artifact olarak hazırlar
+      - name: Install, build, and upload (Astro)
+        uses: withastro/action@v3
         with:
-          node-version: 20
-          cache: "pnpm"
-
-      # pnpm'i deterministik kur (istersen package.json'a packageManager ekleyebilirsin)
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.1.0
-          run_install: false
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Astro site
-        run: pnpm build
-
-      # dist klasörünü Pages artifact olarak yükle
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+          node-version: 20 # Astro için önerilen LTS (>=18). İstersen güncelle.
+          package-manager: pnpm@9.1.0 # HATAYI ÇÖZEN SATIR: pnpm sürümünü açıkça belirt
+          # path: .                      # Proje kökün farklıysa aç
+          # build-dir: dist              # Varsayılan dist; değiştirdiysen aç
+          # flags: --frozen-lockfile     # Kilit dosyasına sadık kalmak istersen ekleyebilirsin
 
   deploy:
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
