@@ -13,7 +13,7 @@ import { SITE } from "./src/config";
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://canugurlu.github.io',
+  site: SITE.website,
   base: 'canugurlu.github.io',
   integrations: [
     sitemap({
