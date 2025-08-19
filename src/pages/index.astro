@@ -49,12 +49,14 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       </p>
       <p class="mt-2">
         Interested?
-        <LinkButton
+        <a
           class="underline decoration-dashed underline-offset-4 hover:text-accent"
           href="https://canugurlu.dev/Can_Ugurlu_Resume.pdf"
+          target="_blank"
+        rel="noopener noreferrer"
         >
           Download my CV
-        </LinkButton> for more details.
+      </a> for more details.
       </p>
       {
         // only display if at least one social link is enabled
